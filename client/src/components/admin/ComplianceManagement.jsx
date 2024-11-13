@@ -7,7 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function ComplianceManagement() {
   const [compliance, setCompliance] = useState([]);
-  const [formData, setFormData] = useState({ name: '', type: '', expirationDate: '', status: 'Active', responsiblePerson: '', description: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    type: '',
+    expirationDate: '',
+    status: 'Active',
+    responsiblePerson: '',
+    description: '',
+    policyLink: '',
+  });
 
   useEffect(() => {
     fetchCompliance();
@@ -37,7 +45,16 @@ function ComplianceManagement() {
       });
       if (response.ok) {
         fetchCompliance();
-        setFormData({ name: '', type: '', expirationDate: '', status: 'Active', responsiblePerson: '', description: '' });
+        setFormData({
+          name: '',
+          type: '',
+          expirationDate: '',
+          status: 'Active',
+          responsiblePerson: '',
+          description: '',
+
+          policyLink: '',
+        });
       }
     } catch (error) {
       console.error('Error adding compliance:', error);
@@ -55,6 +72,11 @@ function ComplianceManagement() {
     } catch (error) {
       console.error('Error deleting compliance:', error);
     }
+  };
+
+  const generateReport = () => {
+    // Implement a simple report generation logic or redirect to a report page
+    alert('Report generation feature is under construction.');
   };
 
   return (
@@ -80,6 +102,7 @@ function ComplianceManagement() {
             </Select>
             <Input name="responsiblePerson" value={formData.responsiblePerson} onChange={handleInputChange} placeholder="Responsible Person" required />
             <Input name="description" value={formData.description} onChange={handleInputChange} placeholder="Description" />
+            <Input name="policyLink" value={formData.policyLink} onChange={handleInputChange} placeholder="Policy Document Link" />
             <Button type="submit">Add Compliance</Button>
           </form>
         </CardContent>
@@ -96,7 +119,9 @@ function ComplianceManagement() {
                 <TableHead>Type</TableHead>
                 <TableHead>Expiration Date</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Verification Date</TableHead>
                 <TableHead>Responsible Person</TableHead>
+                <TableHead>Policy Link</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -108,6 +133,7 @@ function ComplianceManagement() {
                   <TableCell>{new Date(item.expirationDate).toLocaleDateString()}</TableCell>
                   <TableCell>{item.status}</TableCell>
                   <TableCell>{item.responsiblePerson}</TableCell>
+                  <TableCell>{item.policyLink ? <a href={item.policyLink} target="_blank" rel="noopener noreferrer">View Policy</a> : 'N/A'}</TableCell>
                   <TableCell>
                     <Button variant="destructive" onClick={() => handleDelete(item._id)}>Delete</Button>
                   </TableCell>
@@ -115,6 +141,9 @@ function ComplianceManagement() {
               ))}
             </TableBody>
           </Table>
+          <div className="mt-4">
+            <Button onClick={generateReport}>Generate Compliance Report</Button>
+          </div>
         </CardContent>
       </Card>
     </div>

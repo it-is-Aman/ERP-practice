@@ -1,4 +1,3 @@
-// src/components/AttendanceTracking.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,15 +6,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function AttendanceTracking() {
+  // State for attendance records and form data
   const [attendance, setAttendance] = useState([]);
   const [employees, setEmployees] = useState([]);
-  const [formData, setFormData] = useState({ employee: '', date: '', status: 'Present', checkIn: '', checkOut: '', overtime: 0 });
+  const [formData, setFormData] = useState({
+    employee: '',
+    date: '',
+    status: 'Present',
+    checkIn: '',
+    checkOut: '',
+    overtime: 0
+  });
 
+  // Fetch attendance records and employees when the component mounts
   useEffect(() => {
     fetchAttendance();
     fetchEmployees();
   }, []);
 
+  // Fetch existing attendance records from the server
   const fetchAttendance = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/attendance');
@@ -26,6 +35,7 @@ function AttendanceTracking() {
     }
   };
 
+  // Fetch the list of employees from the server
   const fetchEmployees = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/employees');
@@ -36,17 +46,32 @@ function AttendanceTracking() {
     }
   };
 
+  // Handle form input changes
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission to post attendance data
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Convert the time values to Date objects
+    const date = new Date(formData.date); // Use the date part from the form
+    const checkIn = new Date(date.setHours(formData.checkIn.split(':')[0], formData.checkIn.split(':')[1])); // Set the hours and minutes
+    const checkOut = new Date(date.setHours(formData.checkOut.split(':')[0], formData.checkOut.split(':')[1])); // Set the hours and minutes
+
+    // Prepare the data with Date objects
+    const updatedFormData = {
+      ...formData,
+      checkIn: checkIn,
+      checkOut: checkOut,
+    };
+
     try {
       const response = await fetch('http://localhost:5000/api/attendance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(updatedFormData),
       });
       if (response.ok) {
         fetchAttendance();
@@ -60,24 +85,49 @@ function AttendanceTracking() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold tracking-tight">Attendance Tracking</h1>
+
+      {/* Form to mark attendance */}
       <Card>
         <CardHeader>
           <CardTitle>Mark Attendance</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Select name="employee" value={formData.employee} onValueChange={(value) => setFormData({ ...formData, employee: value })}>
+            {/* Employee selection dropdown */}
+            <Select
+              name="employee"
+              value={formData.employee}
+              onValueChange={(value) => setFormData({ ...formData, employee: value })}
+              required
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select Employee" />
               </SelectTrigger>
               <SelectContent>
                 {Array.isArray(employees) && employees.map(employee => (
-                  <SelectItem key={employee._id} value={employee._id}>{employee.name}</SelectItem>
+                  <SelectItem key={employee._id} value={employee._id}>
+                    {employee.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Input name="date" value={formData.date} onChange={handleInputChange} type="date" required />
-            <Select name="status" value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+
+            {/* Date input */}
+            <Input
+              name="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              type="date"
+              required
+            />
+
+            {/* Status selection dropdown */}
+            <Select
+              name="status"
+              value={formData.status}
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
+              required
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select Status" />
               </SelectTrigger>
@@ -87,13 +137,37 @@ function AttendanceTracking() {
                 <SelectItem value="Half Day">Half Day</SelectItem>
               </SelectContent>
             </Select>
-            <Input name="checkIn" value={formData.checkIn} onChange={handleInputChange} type="time" />
-            <Input name="checkOut" value={formData.checkOut} onChange={handleInputChange} type="time" />
-            <Input name="overtime" value={formData.overtime} onChange={handleInputChange} type="number" placeholder="Overtime (hours)" />
+
+            {/* Check-in and Check-out inputs */}
+            <Input
+              name="checkIn"
+              value={formData.checkIn}
+              onChange={handleInputChange}
+              type="time"
+            />
+            <Input
+              name="checkOut"
+              value={formData.checkOut}
+              onChange={handleInputChange}
+              type="time"
+            />
+
+            {/* Overtime input */}
+            <Input
+              name="overtime"
+              value={formData.overtime}
+              onChange={handleInputChange}
+              type="number"
+              placeholder="Overtime (hours)"
+            />
+
+            {/* Submit button */}
             <Button type="submit">Mark Attendance</Button>
           </form>
         </CardContent>
       </Card>
+
+      {/* Table displaying attendance records */}
       <Card>
         <CardHeader>
           <CardTitle>Attendance Records</CardTitle>
@@ -113,11 +187,11 @@ function AttendanceTracking() {
             <TableBody>
               {Array.isArray(attendance) && attendance.map(record => (
                 <TableRow key={record._id}>
-                  <TableCell>{record.employee.name}</TableCell>
+                  <TableCell>{record.employee?.name || 'N/A'}</TableCell>
                   <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
                   <TableCell>{record.status}</TableCell>
-                  <TableCell>{record.checkIn}</TableCell>
-                  <TableCell>{record.checkOut}</TableCell>
+                  <TableCell>{record.checkIn ? new Date(record.checkIn).toLocaleTimeString() : 'N/A'}</TableCell>
+                  <TableCell>{record.checkOut ? new Date(record.checkOut).toLocaleTimeString() : 'N/A'}</TableCell>
                   <TableCell>{record.overtime}</TableCell>
                 </TableRow>
               ))}

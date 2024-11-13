@@ -9,14 +9,9 @@ const sidebarItems = [
   { icon: Home, label: "Dashboard", path: "/" },
   { icon: Users, label: "HR", path: "/hr" },
   { icon: Shield, label: "Admin/Legal", path: "/admin" },
-  // { icon: Users, label: "Employees", path: "/employees" },
-  // { icon: Clock, label: "Attendance", path: "/attendance" },
-  // { icon: Calendar, label: "Leave", path: "/leaves" },
-  // { icon: DollarSign, label: "Payroll", path: "/payroll" },
-  // { icon: Shield, label: "Admin/Legal", path: "/admin" },
+  { icon: Package, label: "Product", path: "/product" },
+  { icon: Users, label: "Sales", path: "/sales" },
   // { icon: BarChart, label: "Finance", path: "/finance" },
-  // { icon: Users, label: "Sales", path: "/sales" },
-  // { icon: Package, label: "Product", path: "/product" },
 ];
 
 function Sidebar() {

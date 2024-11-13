@@ -21,6 +21,7 @@ function LeaveManagement() {
     try {
       const response = await fetch('http://localhost:5000/api/leaves');
       const data = await response.json();
+      console.log('Fetched leaves:', data); // Debugging line
       setLeaves(data);
     } catch (error) {
       console.error('Error fetching leaves:', error);
@@ -31,6 +32,7 @@ function LeaveManagement() {
     try {
       const response = await fetch('http://localhost:5000/api/employees');
       const data = await response.json();
+      console.log('Fetched employees:', data); // Debugging line
       setEmployees(data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -87,7 +89,7 @@ function LeaveManagement() {
                 <SelectValue placeholder="Select Employee" />
               </SelectTrigger>
               <SelectContent>
-                {Array.isArray(employees)   && employees.map(employee => (
+                {Array.isArray(employees) && employees.map(employee => (
                   <SelectItem key={employee._id} value={employee._id}>{employee.name}</SelectItem>
                 ))}
               </SelectContent>

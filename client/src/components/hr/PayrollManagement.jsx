@@ -1,4 +1,3 @@
-// src/components/PayrollManagement.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +11,18 @@ function PayrollManagement() {
   const [formData, setFormData] = useState({ employee: '', month: '', year: new Date().getFullYear() });
 
   useEffect(() => {
-    fetchPayroll();
     fetchEmployees();
   }, []);
 
-  const fetchPayroll = async () => {
+  useEffect(() => {
+    if (formData.employee) {
+      fetchPayroll(formData.employee);
+    }
+  }, [formData.employee]);
+
+  const fetchPayroll = async (employeeId) => {
     try {
-      const response = await fetch('http://localhost:5000/api/payroll');
+      const response = await fetch(`http://localhost:5000/api/payroll/${employeeId}`);
       const data = await response.json();
       setPayroll(data);
     } catch (error) {
@@ -49,7 +53,7 @@ function PayrollManagement() {
         body: JSON.stringify(formData)
       });
       if (response.ok) {
-        fetchPayroll();
+        fetchPayroll(formData.employee);  // Fetch updated payroll after submission
         setFormData({ employee: '', month: '', year: new Date().getFullYear() });
       }
     } catch (error) {
@@ -71,7 +75,7 @@ function PayrollManagement() {
                 <SelectValue placeholder="Select Employee" />
               </SelectTrigger>
               <SelectContent>
-                {Array.isArray(employees)  && employees.map(employee => (
+                {Array.isArray(employees) && employees.map(employee => (
                   <SelectItem key={employee._id} value={employee._id}>{employee.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -82,39 +86,42 @@ function PayrollManagement() {
           </form>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Payroll Records</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Month</TableHead>
-                <TableHead>Year</TableHead>
-                <TableHead>Basic Salary</TableHead>
-                <TableHead>Overtime</TableHead>
-                <TableHead>Deductions</TableHead>
-                <TableHead>Net Salary</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.isArray(payroll) && payroll.map(record => (
-                <TableRow key={record._id}>
-                  <TableCell>{record.employee.name}</TableCell>
-                  <TableCell>{record.month}</TableCell>
-                  <TableCell>{record.year}</TableCell>
-                  <TableCell>${record.basicSalary.toFixed(2)}</TableCell>
-                  <TableCell>${record.overtime.toFixed(2)}</TableCell>
-                  <TableCell>${(record.deductions.tax + record.deductions.leave).toFixed(2)}</TableCell>
-                  <TableCell>${record.netSalary.toFixed(2)}</TableCell>
+
+      {payroll.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Payroll Records</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Month</TableHead>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Basic Salary</TableHead>
+                  <TableHead>Overtime</TableHead>
+                  <TableHead>Deductions</TableHead>
+                  <TableHead>Net Salary</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {payroll.map((record) => (
+                  <TableRow key={record._id}>
+                    <TableCell>{record.employee.name}</TableCell>
+                    <TableCell>{record.month}</TableCell>
+                    <TableCell>{record.year}</TableCell>
+                    <TableCell>${record.basicSalary.toFixed(2)}</TableCell>
+                    <TableCell>${record.overtime.toFixed(2)}</TableCell>
+                    <TableCell>${(record.deductions.tax + record.deductions.leave).toFixed(2)}</TableCell>
+                    <TableCell>${record.netSalary.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
