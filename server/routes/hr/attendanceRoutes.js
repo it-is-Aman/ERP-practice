@@ -12,11 +12,13 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+  console.log('Incoming request body:', req.body); // Log the request body
   const attendance = new Attendance(req.body);
   try {
     const newAttendance = await attendance.save();
     res.status(201).json(newAttendance);
   } catch (err) {
+    console.error('Error saving attendance:', err.message); // Log the error
     res.status(400).json({ message: err.message });
   }
 });

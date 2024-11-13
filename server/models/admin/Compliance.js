@@ -7,6 +7,7 @@ const ComplianceSchema = new mongoose.Schema({
   status: { type: String, enum: ['Active', 'Expired', 'Pending Renewal'], default: 'Active' },
   responsiblePerson: { type: String, required: true },
   description: { type: String },
+  policyLink: { type: String },
 });
 
 module.exports = mongoose.model('Compliance', ComplianceSchema);
